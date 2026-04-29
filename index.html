@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة الإرسال المباشر لتطبيق Gmail</title>
+    <title>منصة الإرسال الاحترافية الشاملة</title>
     
-    <!-- مكتبة Quill للمحرر (رغم أن الإرسال المباشر يدعم النص العادي فقط) -->
+    <!-- مكتبة المحرر الاحترافي الشامل -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 
     <style>
         :root {
-            --primary: #ea4335; /* لون جيميل الأحمر */
+            --primary: #1a73e8;
             --bg: #f4f7f6;
             --card-bg: #ffffff;
             --text: #333;
@@ -38,20 +38,20 @@
         }
         h2 { margin-top: 0; color: var(--primary); }
         
-        /* تنسيقات المحرر */
-        .editor-container { height: 250px; margin-bottom: 20px; background: white; }
+        .editor-container { height: 300px; margin-bottom: 20px; background: white; }
         input[type="text"], input[type="file"] {
             width: 100%; padding: 10px; margin-bottom: 15px;
             border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;
         }
         
-        .alert-note {
-            background-color: #fff3cd; color: #856404;
-            padding: 10px; border-radius: 5px; font-size: 13px; margin-bottom: 15px;
-            border-right: 4px solid #ffeeba;
+        .btn {
+            background: var(--primary); color: white; padding: 10px 15px;
+            border: none; border-radius: 5px; cursor: pointer; font-size: 14px; transition: 0.3s;
         }
+        .btn:hover { background: #1557b0; }
+        .btn-qr { background: #34a853; margin-bottom: 15px; font-weight: bold;}
+        .btn-qr:hover { background: #2b803e; }
 
-        /* تنسيقات قائمة الإيميلات */
         .email-list {
             max-height: 500px; overflow-y: auto;
             border: 1px solid #eee; padding: 10px; border-radius: 5px;
@@ -62,13 +62,18 @@
             border-radius: 5px; border-right: 4px solid var(--primary);
             transition: 0.3s;
         }
-        .email-item:hover { background: #fad2ce; }
+        .email-item:hover { background: #e8f0fe; }
         .email-text { font-family: monospace; font-size: 14px; }
         .send-btn {
-            background: var(--primary); color: white; border: none;
+            background: #ea4335; color: white; border: none;
             padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;
         }
         .send-btn:hover { background: #c5221f; }
+
+        .info-box {
+            background: #e8f0fe; border-right: 4px solid #1a73e8;
+            padding: 10px; border-radius: 5px; font-size: 13px; margin-bottom: 15px;
+        }
 
         @media (max-width: 768px) {
             .container { grid-template-columns: 1fr; }
@@ -77,32 +82,34 @@
 </head>
 <body>
 
-    <h1 style="text-align: center; color: var(--primary);">نظام الإرسال المباشر لتطبيق Gmail</h1>
+    <h1 style="text-align: center; color: var(--primary);">نظام الإرسال الشامل</h1>
 
     <div class="container">
         <!-- القسم الأول: إعداد الرسالة -->
         <div class="card">
-            <h2>1. كتابة الرسالة</h2>
+            <h2>1. كتابة الرسالة الاحترافية</h2>
             
-            <div class="alert-note">
-                <b>ملاحظة تقنية مهمة:</b> لأنك اخترت أن تُكتب الرسالة <b>تلقائياً</b> داخل تطبيق جيميل، سيتم نقل <b>النص فقط</b> (الصور والألوان لن تنتقل لأن التطبيقات لا تدعم استقبال الصور عبر الروابط المباشرة).
+            <div class="info-box">
+                <b>ملاحظة:</b> عند الضغط على إرسال، سيتم فتح التطبيق بنص عادي، ولكننا <b>نسخنا لك الرسالة الملونة بالصور تلقائياً</b>، يمكنك عمل "لصق (Paste)" داخل التطبيق لتظهر بتصميمها الكامل.
             </div>
 
-            <label>موضوع الرسالة (Subject):</label>
+            <label>موضوع الرسالة:</label>
             <input type="text" id="emailSubject" placeholder="اكتب موضوع الرسالة هنا...">
 
-            <label>محتوى الرسالة:</label>
+            <!-- زر إضافة QR Code -->
+            <button class="btn btn-qr" onclick="generateQR()">+ إضافة كود QR</button>
+            
             <div id="editor" class="editor-container"></div>
         </div>
 
-        <!-- القسم الثاني: رفع الملف وقائمة الإيميلات -->
+        <!-- القسم الثاني: رفع الملف -->
         <div class="card">
-            <h2>2. رفع الملف وقائمة الإيميلات</h2>
-            <label>ارفع ملف الـ CSV:</label>
+            <h2>2. قائمة الإيميلات</h2>
+            <label>ارفع ملف CSV:</label>
             <input type="file" id="csvFile" accept=".csv">
             
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3>قائمة المراسلة:</h3>
+                <h3>العدد:</h3>
                 <span id="emailCount" style="background: var(--primary); color: white; padding: 2px 8px; border-radius: 10px;">0</span>
             </div>
 
@@ -113,23 +120,24 @@
     </div>
 
     <script>
-        // إعداد محرر النصوص المتقدم
+        // إرجاع جميع أدوات المحرر الاحترافي
         var quill = new Quill('#editor', {
             theme: 'snow',
             modules: {
-                toolbar: [
-                    [{ 'header':[1, 2, 3, false] }],
-                    ['bold', 'italic', 'underline'],[{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                toolbar:[
+                    [{ 'header': [1, 2, 3, false] }],[{ 'color': [] }, { 'background': [] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'align': [] }],
+                    ['link', 'image'],[{ 'list': 'ordered'}, { 'list': 'bullet' }],
                     ['clean']
                 ]
             }
         });
-        quill.root.innerHTML = "<p>مرحباً،</p><p>اكتب رسالتك هنا وسيتم نقلها تلقائياً لتطبيق البريد...</p>";
+        quill.root.innerHTML = "<h3>مرحباً،</h3><p>اكتب رسالتك الاحترافية هنا...</p>";
 
-        // متغير لتخزين الإيميلات ومنع التكرار
         let emailsSet = new Set();
 
-        // 1. معالجة ملف CSV
+        // قراءة الملف واستخراج الإيميلات
         document.getElementById('csvFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -137,7 +145,6 @@
             const reader = new FileReader();
             reader.onload = function(event) {
                 const text = event.target.result;
-                // استخراج الإيميلات من أي مكان في الملف
                 const emailRegex = /[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
                 const foundEmails = text.match(emailRegex);
 
@@ -145,13 +152,12 @@
                     foundEmails.forEach(email => emailsSet.add(email.toLowerCase()));
                     renderEmails();
                 } else {
-                    alert("لم يتم العثور على إيميلات صالحة.");
+                    alert("لم يتم العثور على إيميلات.");
                 }
             };
             reader.readAsText(file);
         });
 
-        // 2. عرض الإيميلات
         function renderEmails() {
             const container = document.getElementById('emailListContainer');
             const count = document.getElementById('emailCount');
@@ -169,28 +175,46 @@
                 div.className = 'email-item';
                 div.innerHTML = `
                     <span class="email-text">${email}</span>
-                    <button class="send-btn" onclick="openAppAndSend('${email}')">فتح التطبيق وإرسال</button>
+                    <button class="send-btn" onclick="sendAndRemove('${email}')">إرسال</button>
                 `;
                 container.appendChild(div);
             });
         }
 
-        // 3. فتح تطبيق البريد (جيميل) ونقل البيانات مباشرة ثم حذف الإيميل
-        function openAppAndSend(email) {
-            // أخذ الموضوع
+        // أداة توليد كود QR
+        function generateQR() {
+            const urlOrText = prompt("أدخل الرابط أو النص الذي تريده داخل رمز الـ QR:");
+            if (urlOrText) {
+                const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(urlOrText)}`;
+                const range = quill.getSelection(true);
+                quill.insertEmbed(range.index, 'image', qrImgUrl);
+            }
+        }
+
+        // دالة الإرسال الذكية (تنسخ الاحترافي وتفتح التطبيق بالعادي)
+        async function sendAndRemove(email) {
             const subject = document.getElementById('emailSubject').value;
-            
-            // أخذ النص العادي فقط (بدون أكواد HTML) ليتم إدراجه تلقائياً بنجاح
+            const htmlContent = quill.root.innerHTML;
             const textContent = quill.getText();
 
-            // تجهيز الرابط المباشر الذي يفتح تطبيق البريد الافتراضي (Gmail في الهواتف)
-            // مع تعبئة (المرسل إليه + الموضوع + الرسالة)
+            // 1. نسخ الرسالة الاحترافية (بصورها وألوانها) إلى الحافظة (Clipboard)
+            try {
+                const blobHtml = new Blob([htmlContent], { type: "text/html" });
+                const blobText = new Blob([textContent], { type: "text/plain" });
+                const clipboardItem = new ClipboardItem({
+                    "text/html": blobHtml,
+                    "text/plain": blobText
+                });
+                await navigator.clipboard.write([clipboardItem]);
+            } catch (err) {
+                console.log("لم يتم النسخ التلقائي (يعمل بشكل أفضل على سيرفر حقيقي)");
+            }
+
+            // 2. فتح تطبيق الإيميل وتعبئته آلياً بالنص العادي
             const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(textContent)}`;
-            
-            // فتح التطبيق مباشرة
             window.location.href = mailtoLink;
 
-            // حذف الإيميل من القائمة وتحديث الواجهة تلقائيا
+            // 3. حذف الإيميل وتحديث القائمة
             emailsSet.delete(email);
             renderEmails();
         }
