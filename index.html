@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة إرسال الإيميلات الذكية</title>
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #ddd;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        input[type="file"] {
+            display: block;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px dashed var(--primary-color);
+            border-radius: 6px;
+            background-color: #f8faff;
+            width: 100%;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        .email-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .email-card {
+            background-color: #fff;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .email-card:hover {
+            border-color: var(--primary-color);
+            background-color: #f4f8ff;
+            transform: translateY(-2px);
+        }
+
+        .email-text {
+            word-break: break-all;
+            font-size: 14px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .send-icon {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .stats {
+            font-size: 16px;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .note {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>📧 أداة الإرسال السريع للإيميلات</h1>
+
+        <div class="section">
+            <label>1. تجهيز الرسالة (القالب الثابت)</label>
+            <input type="text" id="emailSubject" placeholder="موضوع الرسالة (مثال: عرض عمل، دعوة، إلخ...)" style="margin-bottom: 10px;">
+            <textarea id="emailBody" placeholder="اكتب نص الرسالة هنا... (سيتم إدراج هذا النص تلقائياً في الإيميل)"></textarea>
+            <div class="note">* ملاحظة: متصفحات الويب تدعم نقل النصوص العادية والروابط فقط إلى تطبيق البريد.</div>
+        </div>
+
+        <div class="section">
+            <label>2. رفع ملف البيانات (CSV)</label>
+            <input type="file" id="csvFile" accept=".csv">
+            <div class="note">* تأكد أن الملف يحتوي على عمود للإيميلات (الأداة ستستخرج الإيميلات تلقائياً).</div>
+        </div>
+
+        <div class="section" style="border-bottom: none;">
+            <label>3. قائمة الإيميلات المستخرجة (اضغط للإرسال)</label>
+            <div class="stats" id="statsCounter">عدد الإيميلات المتبقية: 0</div>
+            <div class="email-list" id="emailContainer">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        let emailsList = [];
+
+        // الاستماع لحدث رفع الملف
+        document.getElementById('csvFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const text = event.target.result;
+                extractEmailsFromCSV(text);
+            };
+            reader.readAsText(file);
+        });
+
+        // دالة استخراج الإيميلات من النص
+        function extractEmailsFromCSV(csvText) {
+            emailsList = []; // تصفير القائمة
+            const rows = csvText.split('\n'); // تقسيم الملف إلى أسطر
+            
+            rows.forEach(row => {
+                const columns = row.split(','); // تقسيم السطر إلى أعمدة
+                columns.forEach(col => {
+                    const cell = col.trim();
+                    // التحقق البسيط إذا كانت الخلية تحتوي على صيغة إيميل
+                    if (cell.includes('@') && cell.includes('.')) {
+                        // إزالة أي علامات اقتباس قد تكون موجودة في ملفات الـ CSV
+                        const cleanEmail = cell.replace(/["']/g, ""); 
+                        // تجنب إضافة الإيميل إذا كان مجرد عنوان العمود (Header)
+                        if(cleanEmail.toLowerCase() !== 'email' && cleanEmail.toLowerCase() !== 'البريد الالكتروني') {
+                            // إضافة الإيميل فقط إذا لم يكن مكرراً
+                            if(!emailsList.includes(cleanEmail)) {
+                                emailsList.push(cleanEmail);
+                            }
+                        }
+                    }
+                });
+            });
+
+            renderEmails();
+        }
+
+        // دالة رسم وإظهار الإيميلات في الصفحة
+        function renderEmails() {
+            const container = document.getElementById('emailContainer');
+            const stats = document.getElementById('statsCounter');
+            
+            container.innerHTML = ''; // تفريغ الحاوية
+            stats.innerText = `عدد الإيميلات المتبقية: ${emailsList.length}`;
+
+            if (emailsList.length === 0) {
+                container.innerHTML = '<p style="color: #777;">لا توجد إيميلات حالياً. يرجى رفع ملف CSV.</p>';
+                return;
+            }
+
+            emailsList.forEach((email, index) => {
+                const card = document.createElement('div');
+                card.className = 'email-card';
+                card.innerHTML = `
+                    <span class="email-text">${email}</span>
+                    <span class="send-icon">إرسال</span>
+                `;
+                
+                // عند الضغط على الإيميل
+                card.onclick = () => handleSendEmail(email, index);
+                
+                container.appendChild(card);
+            });
+        }
+
+        // دالة معالجة الضغط (الإرسال والحذف)
+        function handleSendEmail(email, index) {
+            const subject = document.getElementById('emailSubject').value;
+            const body = document.getElementById('emailBody').value;
+
+            // تشفير النصوص لتكون صالحة داخل الرابط
+            const encodedSubject = encodeURIComponent(subject);
+            const encodedBody = encodeURIComponent(body);
+
+            // إنشاء رابط mailto لفتح Gmail أو تطبيق البريد الافتراضي
+            const mailtoLink = `mailto:${email}?subject=${encodedSubject}&body=${encodedBody}`;
+
+            // فتح تطبيق البريد
+            window.location.href = mailtoLink;
+
+            // حذف الإيميل من القائمة
+            emailsList.splice(index, 1);
+
+            // إعادة رسم القائمة بعد الحذف (تحديث الواجهة)
+            renderEmails();
+        }
+    </script>
+</body>
+</html>
