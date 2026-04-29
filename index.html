@@ -3,164 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أداة إرسال الإيميلات الذكية</title>
+    <title>منصة إرسال الإيميلات الاحترافية</title>
+    
+    <!-- استدعاء مكتبة Quill لمحرر النصوص الاحترافي -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
     <style>
         :root {
-            --primary-color: #1a73e8;
-            --bg-color: #f0f2f5;
+            --primary: #1a73e8;
+            --bg: #f4f7f6;
             --card-bg: #ffffff;
-            --text-color: #333333;
-            --border-color: #ddd;
+            --text: #333;
         }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: var(--bg);
+            color: var(--text);
             margin: 0;
             padding: 20px;
-            display: flex;
-            justify-content: center;
         }
-
         .container {
-            width: 100%;
-            max-width: 800px;
-            background-color: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            text-align: center;
-            color: var(--primary-color);
-            margin-bottom: 30px;
-        }
-
-        .section {
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-family: inherit;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-
-        input[type="file"] {
-            display: block;
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px dashed var(--primary-color);
-            border-radius: 6px;
-            background-color: #f8faff;
-            width: 100%;
-            box-sizing: border-box;
-            cursor: pointer;
-        }
-
-        .email-list {
+            max-width: 1000px;
+            margin: auto;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        h2 { margin-top: 0; color: var(--primary); }
+        
+        /* تنسيقات المحرر */
+        .editor-container { height: 300px; margin-bottom: 20px; background: white; }
+        input[type="text"], input[type="file"] {
+            width: 100%; padding: 10px; margin-bottom: 15px;
+            border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;
+        }
+        .btn {
+            background: var(--primary); color: white; padding: 10px 15px;
+            border: none; border-radius: 5px; cursor: pointer; font-size: 14px; transition: 0.3s;
+        }
+        .btn:hover { background: #1557b0; }
+        .btn-qr { background: #34a853; margin-bottom: 15px; }
+        .btn-qr:hover { background: #2b803e; }
+
+        /* تنسيقات قائمة الإيميلات */
+        .email-list {
+            max-height: 500px; overflow-y: auto;
+            border: 1px solid #eee; padding: 10px; border-radius: 5px;
+        }
+        .email-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #f8f9fa; padding: 12px; margin-bottom: 8px;
+            border-radius: 5px; border-right: 4px solid var(--primary);
+            transition: 0.3s;
+        }
+        .email-item:hover { background: #e8f0fe; }
+        .email-text { font-family: monospace; font-size: 14px; }
+        .send-btn {
+            background: #ea4335; color: white; border: none;
+            padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;
+        }
+        .send-btn:hover { background: #c5221f; }
+        
+        .toast {
+            position: fixed; bottom: 20px; right: 20px; background: #333; color: white;
+            padding: 15px; border-radius: 5px; display: none; z-index: 1000;
         }
 
-        .email-card {
-            background-color: #fff;
-            border: 1px solid var(--border-color);
-            padding: 15px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .email-card:hover {
-            border-color: var(--primary-color);
-            background-color: #f4f8ff;
-            transform: translateY(-2px);
-        }
-
-        .email-text {
-            word-break: break-all;
-            font-size: 14px;
-            font-weight: bold;
-            color: #444;
-        }
-
-        .send-icon {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-
-        .stats {
-            font-size: 16px;
-            font-weight: bold;
-            color: #555;
-            margin-bottom: 10px;
-        }
-
-        .note {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
+        /* شاشات الهواتف */
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
+    <h1 style="text-align: center; color: var(--primary);">نظام الإرسال الذكي لـ Gmail</h1>
+
     <div class="container">
-        <h1>📧 أداة الإرسال السريع للإيميلات</h1>
+        <!-- القسم الأول: إعداد الرسالة -->
+        <div class="card">
+            <h2>1. كتابة الرسالة الاحترافية</h2>
+            
+            <label>موضوع الرسالة (Subject):</label>
+            <input type="text" id="emailSubject" placeholder="اكتب موضوع الرسالة هنا...">
 
-        <div class="section">
-            <label>1. تجهيز الرسالة (القالب الثابت)</label>
-            <input type="text" id="emailSubject" placeholder="موضوع الرسالة (مثال: عرض عمل، دعوة، إلخ...)" style="margin-bottom: 10px;">
-            <textarea id="emailBody" placeholder="اكتب نص الرسالة هنا... (سيتم إدراج هذا النص تلقائياً في الإيميل)"></textarea>
-            <div class="note">* ملاحظة: متصفحات الويب تدعم نقل النصوص العادية والروابط فقط إلى تطبيق البريد.</div>
+            <button class="btn btn-qr" onclick="generateQR()">+ إضافة رمز QR إلى الرسالة</button>
+            
+            <div id="editor" class="editor-container"></div>
+            <p style="font-size: 12px; color: gray;">* سيتم نسخ محتوى هذه الرسالة بجميع تنسيقاتها وصورها تلقائياً عند الإرسال.</p>
         </div>
 
-        <div class="section">
-            <label>2. رفع ملف البيانات (CSV)</label>
+        <!-- القسم الثاني: رفع الملف وقائمة الإيميلات -->
+        <div class="card">
+            <h2>2. رفع الملف وقائمة الإيميلات</h2>
+            <label>ارفع ملف الـ CSV:</label>
             <input type="file" id="csvFile" accept=".csv">
-            <div class="note">* تأكد أن الملف يحتوي على عمود للإيميلات (الأداة ستستخرج الإيميلات تلقائياً).</div>
-        </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>قائمة المراسلة:</h3>
+                <span id="emailCount" style="background: var(--primary); color: white; padding: 2px 8px; border-radius: 10px;">0</span>
+            </div>
 
-        <div class="section" style="border-bottom: none;">
-            <label>3. قائمة الإيميلات المستخرجة (اضغط للإرسال)</label>
-            <div class="stats" id="statsCounter">عدد الإيميلات المتبقية: 0</div>
-            <div class="email-list" id="emailContainer">
-                </div>
+            <div class="email-list" id="emailListContainer">
+                <p style="text-align: center; color: gray;">لم يتم رفع أي إيميلات بعد.</p>
+            </div>
         </div>
     </div>
 
-    <script>
-        let emailsList = [];
+    <div class="toast" id="toast">تم نسخ الرسالة! افتح نافذة Gmail والصقها (Ctrl+V)</div>
 
-        // الاستماع لحدث رفع الملف
+    <script>
+        // إعداد محرر النصوص المتقدم (Quill)
+        var quill = new Quill('#editor', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],[{ 'color': [] }, { 'background': [] }],
+                    ['bold', 'italic', 'underline', 'strike'],[{ 'align': [] }],
+                    ['link', 'image'],[{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['clean']
+                ]
+            }
+        });
+        quill.root.innerHTML = "<h3>مرحباً بك،</h3><p>اكتب رسالتك الاحترافية هنا...</p>";
+
+        // متغير لتخزين الإيميلات (نستخدم Set لمنع التكرار)
+        let emailsSet = new Set();
+
+        // 1. معالجة ملف CSV واستخراج الإيميلات
         document.getElementById('csvFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -168,86 +145,91 @@
             const reader = new FileReader();
             reader.onload = function(event) {
                 const text = event.target.result;
-                extractEmailsFromCSV(text);
+                // تعبير نمطي (Regex) لاستخراج أي إيميل من الملف مهما كان مكانه
+                const emailRegex = /[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+                const foundEmails = text.match(emailRegex);
+
+                if (foundEmails) {
+                    foundEmails.forEach(email => emailsSet.add(email.toLowerCase()));
+                    renderEmails();
+                } else {
+                    alert("لم يتم العثور على إيميلات صالحة في هذا الملف.");
+                }
             };
             reader.readAsText(file);
         });
 
-        // دالة استخراج الإيميلات من النص
-        function extractEmailsFromCSV(csvText) {
-            emailsList = []; // تصفير القائمة
-            const rows = csvText.split('\n'); // تقسيم الملف إلى أسطر
-            
-            rows.forEach(row => {
-                const columns = row.split(','); // تقسيم السطر إلى أعمدة
-                columns.forEach(col => {
-                    const cell = col.trim();
-                    // التحقق البسيط إذا كانت الخلية تحتوي على صيغة إيميل
-                    if (cell.includes('@') && cell.includes('.')) {
-                        // إزالة أي علامات اقتباس قد تكون موجودة في ملفات الـ CSV
-                        const cleanEmail = cell.replace(/["']/g, ""); 
-                        // تجنب إضافة الإيميل إذا كان مجرد عنوان العمود (Header)
-                        if(cleanEmail.toLowerCase() !== 'email' && cleanEmail.toLowerCase() !== 'البريد الالكتروني') {
-                            // إضافة الإيميل فقط إذا لم يكن مكرراً
-                            if(!emailsList.includes(cleanEmail)) {
-                                emailsList.push(cleanEmail);
-                            }
-                        }
-                    }
-                });
-            });
-
-            renderEmails();
-        }
-
-        // دالة رسم وإظهار الإيميلات في الصفحة
+        // 2. تحديث وعرض قائمة الإيميلات
         function renderEmails() {
-            const container = document.getElementById('emailContainer');
-            const stats = document.getElementById('statsCounter');
+            const container = document.getElementById('emailListContainer');
+            const count = document.getElementById('emailCount');
             
-            container.innerHTML = ''; // تفريغ الحاوية
-            stats.innerText = `عدد الإيميلات المتبقية: ${emailsList.length}`;
+            container.innerHTML = '';
+            count.innerText = emailsSet.size;
 
-            if (emailsList.length === 0) {
-                container.innerHTML = '<p style="color: #777;">لا توجد إيميلات حالياً. يرجى رفع ملف CSV.</p>';
+            if (emailsSet.size === 0) {
+                container.innerHTML = '<p style="text-align: center; color: gray;">القائمة فارغة.</p>';
                 return;
             }
 
-            emailsList.forEach((email, index) => {
-                const card = document.createElement('div');
-                card.className = 'email-card';
-                card.innerHTML = `
+            emailsSet.forEach(email => {
+                const div = document.createElement('div');
+                div.className = 'email-item';
+                div.innerHTML = `
                     <span class="email-text">${email}</span>
-                    <span class="send-icon">إرسال</span>
+                    <button class="send-btn" onclick="sendToGmail('${email}')">إرسال عبر Gmail</button>
                 `;
-                
-                // عند الضغط على الإيميل
-                card.onclick = () => handleSendEmail(email, index);
-                
-                container.appendChild(card);
+                container.appendChild(div);
             });
         }
 
-        // دالة معالجة الضغط (الإرسال والحذف)
-        function handleSendEmail(email, index) {
+        // 3. دالة توليد QR Code وإدراجه في المحرر
+        function generateQR() {
+            const urlOrText = prompt("أدخل الرابط أو النص الذي تريده داخل رمز الـ QR:");
+            if (urlOrText) {
+                const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(urlOrText)}`;
+                const range = quill.getSelection(true);
+                quill.insertEmbed(range.index, 'image', qrImgUrl);
+            }
+        }
+
+        // 4. دالة الإرسال وحذف الإيميل
+        async function sendToGmail(email) {
             const subject = document.getElementById('emailSubject').value;
-            const body = document.getElementById('emailBody').value;
+            const htmlContent = quill.root.innerHTML;
+            const textContent = quill.getText();
 
-            // تشفير النصوص لتكون صالحة داخل الرابط
-            const encodedSubject = encodeURIComponent(subject);
-            const encodedBody = encodeURIComponent(body);
+            // محاولة نسخ الرسالة المنسقة إلى الحافظة (Clipboard)
+            try {
+                const blobHtml = new Blob([htmlContent], { type: "text/html" });
+                const blobText = new Blob([textContent], { type: "text/plain" });
+                const clipboardItem = new ClipboardItem({
+                    "text/html": blobHtml,
+                    "text/plain": blobText
+                });
+                await navigator.clipboard.write([clipboardItem]);
+                showToast();
+            } catch (err) {
+                console.warn("لا يمكن النسخ التلقائي (قد يتطلب تشغيل الملف على سيرفر أو https)، سيتم إكمال العملية بدون نسخ تلقائي.", err);
+                alert("لم نتمكن من نسخ الرسالة تلقائياً. يرجى نسخها يدوياً من المحرر.");
+            }
 
-            // إنشاء رابط mailto لفتح Gmail أو تطبيق البريد الافتراضي
-            const mailtoLink = `mailto:${email}?subject=${encodedSubject}&body=${encodedBody}`;
+            // رابط فتح Gmail مباشرة (تجهيز الإيميل والموضوع)
+            const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${encodeURIComponent(subject)}`;
+            
+            // فتح نافذة Gmail
+            window.open(gmailLink, '_blank');
 
-            // فتح تطبيق البريد
-            window.location.href = mailtoLink;
-
-            // حذف الإيميل من القائمة
-            emailsList.splice(index, 1);
-
-            // إعادة رسم القائمة بعد الحذف (تحديث الواجهة)
+            // حذف الإيميل من القائمة وتحديث الواجهة
+            emailsSet.delete(email);
             renderEmails();
+        }
+
+        // دالة إظهار إشعار النسخ
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 5000);
         }
     </script>
 </body>
